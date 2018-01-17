@@ -4,18 +4,28 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PerceptronConsoleApplication
+namespace PerceptronApplication
 {
     class Perceptron
     {
+        // Матрица весов
         private Matrix weights;
+        // Список образов
         private List<Image> images;
+
+        int step,
+            not_error;
+
+        bool complete;
+
 
         public Perceptron(List<Image> images, int number_type_images)
         {
             this.images = images;
-
             this.weights = new Matrix(number_type_images, images[0].Lenght() + 1);
+            this.step = 0;
+            this.not_error = 0;
+            this.complete = false;
         }
 
         private bool changeWeights(Image image, Matrix _out)
@@ -67,35 +77,66 @@ namespace PerceptronConsoleApplication
             return weights * image.get();
         }
 
+        public void stepStudy()
+        {
+            if (complete)
+            {
+                return;
+            }
+
+            Image work = images[step % images.Count];
+            step++; // изменяем шаг выполняемой итерации
+
+            if (changeWeights(work, getD(work)))
+            {
+                not_error = 0;
+            }
+            else
+            {
+                not_error++;
+                if (not_error >= images.Count)
+                {
+                    complete = true;
+                    return;
+                }
+            }
+
+            complete = false;
+            return;
+        }
+
         public void study()
         {
-            bool flag;
-            int error = 0, step = 1;
+            if (complete)
+            {
+                return;
+            }
+
             do
             {
-                flag = true;
-                foreach (Image image in images)
-                {
-                    if (changeWeights(image, getD(image)))
-                    {
-                        error = 0;
-                    }
-                    else
-                    {
-                        error++;
-                        if (error >= images.Count)
-                        {
-                            flag = false;
-                            break;
-                        }
-                    }
-                    step++;
-                    Console.WriteLine("Step " + step);
-                }
-                
-            } while (flag && step < 1000);
+                stepStudy();
 
-            Console.WriteLine(weights.ToString());
+                if (step > 1000)
+                {
+                    complete = false;
+                    return;
+                }
+            } while (!complete);
+        }
+
+        public Matrix getWeights()
+        {
+            return weights;
+        }
+
+        public int getStep()
+        {
+            return step;
+        }
+
+        public bool getComplete()
+        {
+            return complete;
         }
     }
 }

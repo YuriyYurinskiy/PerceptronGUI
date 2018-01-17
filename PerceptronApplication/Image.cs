@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PerceptronConsoleApplication
+namespace PerceptronApplication
 {
     class Image
     {
@@ -28,6 +28,11 @@ namespace PerceptronConsoleApplication
             return type;
         }
 
+        public void setType(int value)
+        {
+            type = value;
+        }
+
         public Matrix get()
         {
             return image;
@@ -36,6 +41,11 @@ namespace PerceptronConsoleApplication
         public double get(int x)
         {
             return image.get(x , 0);
+        }
+
+        public void set(int x, double value)
+        {
+            image.set(x, 0, value);
         }
 
         public void fillConsole()

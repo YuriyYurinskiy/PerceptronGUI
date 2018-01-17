@@ -5,8 +5,76 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PerceptronApplication"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="MainWindow" Height="600" Width="800" WindowState="Maximized">
     <Grid>
-        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"  />
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="2*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+            <ColumnDefinition />
+            <ColumnDefinition />
+            <ColumnDefinition />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+
+        <Menu Grid.ColumnSpan="6">
+            <MenuItem Header="File">
+                <MenuItem Header="New"></MenuItem>
+                <MenuItem Header="Open"></MenuItem>
+                <MenuItem Header="Save"></MenuItem>
+                <MenuItem Header="SaveAs..."></MenuItem>
+                <Separator></Separator>
+                <MenuItem Header="Exit"></MenuItem>
+            </MenuItem>
+            <MenuItem Header="Edit">
+                <MenuItem Header="Undo"></MenuItem>
+                <MenuItem Header="Redo"></MenuItem>
+                <Separator></Separator>
+                <MenuItem Header="Cut"></MenuItem>
+                <MenuItem Header="Copy"></MenuItem>
+                <MenuItem Header="Paste"></MenuItem>
+            </MenuItem>
+        </Menu>
+        <GroupBox Grid.Row="1" Grid.ColumnSpan="3" Header="Исходнык данные"  Padding="4">
+            <StackPanel Margin="4">
+                <TextBlock TextWrapping="Wrap" Text="Введите С"/>
+                <TextBox x:Name="textC" Height="23" TextWrapping="Wrap" />
+                <TextBlock TextWrapping="Wrap" Text="Введите число образов"/>
+                <TextBox x:Name="textImages" Height="23" TextWrapping="Wrap" />
+                <TextBlock TextWrapping="Wrap" Text="Введите число свойств образа"/>
+                <TextBox x:Name="textAttr" Height="23" TextWrapping="Wrap"  />
+            </StackPanel>
+        </GroupBox>
+
+        <GroupBox Grid.Row="1" Grid.Column="3" Grid.ColumnSpan="3" Header="Исходнык данные"  Padding="4">
+            <StackPanel Margin="4">
+                <TextBlock TextWrapping="Wrap" Text="Образы"/>
+                <DataGrid x:Name="gridImages" ItemsSource="{Binding}" CanUserAddRows="False"/>
+            </StackPanel>
+        </GroupBox>
+
+        <StackPanel Grid.Row="2" Grid.ColumnSpan="6" HorizontalAlignment="Center" Orientation="Horizontal">
+            <Button x:Name="btnStart" Content="Start" Margin="4" Width="64" />
+            <Button x:Name="btnStudy" Content="Study" Margin="4" Width="64" />
+            <Button x:Name="btnStepStudy" Content="Step Study" Margin="4" Width="64" />
+            <Button x:Name="btnDraw" Content="Draw" Margin="4" Width="64" />
+        </StackPanel>
+
+        <GroupBox Grid.Row="3" Grid.ColumnSpan="2" Header="Вывод " Padding="4">
+            <TextBox x:Name="textLog" Margin="4" Height="Auto" VerticalAlignment="Stretch" TextWrapping="Wrap" AcceptsReturn="True" />
+        </GroupBox>
+
+        <GroupBox Grid.Row="3" Grid.Column="2" Grid.ColumnSpan="2"  Header="Матрица весов" Padding="4">
+            <DataGrid x:Name="gridWeights" Margin="4" HeadersVisibility="None" Height="Auto" VerticalAlignment="Stretch" ItemsSource="{Binding}" CanUserAddRows="False" />
+        </GroupBox>
+
+        <GroupBox Grid.Row="3" Grid.Column="4" Grid.ColumnSpan="2"  Header="График" Padding="4">
+            <Canvas x:Name="canvas"  Background="White" />
+        </GroupBox>
     </Grid>
 </Window>
