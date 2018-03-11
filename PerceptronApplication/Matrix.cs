@@ -8,7 +8,8 @@ namespace PerceptronApplication
 {
     class Matrix
     {
-        private int n, m;
+        private int n, // Строки
+            m; // Столбцы
         private double[][] matrix;
 
         public Matrix(int n, int m)
@@ -35,6 +36,11 @@ namespace PerceptronApplication
             return this.matrix[x][y];
         }
 
+        public double[][] get()
+        {
+            return this.matrix;
+        }
+
         public int LenghtElement()
         {
             return m;
@@ -43,6 +49,33 @@ namespace PerceptronApplication
         public int LenghtStroke()
         {
             return n;
+        }
+
+        public void Normize()
+        {
+            double norm = 0;
+
+            for (int i = 0; i < n; i++)
+            {
+                for (int j = 0; j < m; j++)
+                {
+                    norm += matrix[i][j] * matrix[i][j];
+                }
+            }
+
+            norm = Math.Sqrt(norm);
+
+            if (norm == 0)
+                return;
+
+            for (int i = 0; i < n; i++)
+            {
+                for (int j = 0; j < m; j++)
+                {
+                    matrix[i][j] /= norm;
+                }
+            }
+
         }
 
         public override string ToString()

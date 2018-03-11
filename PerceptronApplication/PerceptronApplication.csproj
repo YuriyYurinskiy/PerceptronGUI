@@ -58,6 +58,7 @@
     <Compile Include="Draw.cs" />
     <Compile Include="Image.cs" />
     <Compile Include="Matrix.cs" />
+    <Compile Include="Transport.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

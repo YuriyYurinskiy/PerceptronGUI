@@ -13,8 +13,11 @@ namespace PerceptronApplication
         // Список образов
         private List<Image> images;
 
+        private Matrix d;
+
         int step,
-            not_error;
+            not_error,
+            threshold;
 
         bool complete;
 
@@ -25,6 +28,7 @@ namespace PerceptronApplication
             this.weights = new Matrix(number_type_images, images[0].Lenght() + 1);
             this.step = 0;
             this.not_error = 0;
+            this.threshold = 1000;
             this.complete = false;
         }
 
@@ -33,26 +37,28 @@ namespace PerceptronApplication
             bool error = false;
             for (int i = 0; i < weights.LenghtStroke(); i++)
             {
-                if (check(_out, image.getType()))
+                if (i == image.getType())
                 {
-                    break;
-                }
-                else if (i == image.getType())
-                {
-                    for (int j = 0; j < weights.LenghtElement(); j++)
+                    if (_out.get(i, 0) <= 0)
                     {
-                        weights.set(i, j, weights.get(i, j) + image.get(j));
-                    }
-                    error = true;
-                }
-                else
+                        for (int j = 0; j < weights.LenghtElement(); j++)
+                        {
+                            weights.set(i, j, weights.get(i, j) + image.get(j));
+                        }
+                        error = true;
+                    }                   
+                } else
                 {
-                    for (int j = 0; j < weights.LenghtElement(); j++)
+                    if (_out.get(i, 0) >= 0)
                     {
-                        weights.set(i, j, weights.get(i, j) - image.get(j));
+                        for (int j = 0; j < weights.LenghtElement(); j++)
+                        {
+                            weights.set(i, j, weights.get(i, j) - image.get(j));
+                        }
+                        error = true;
                     }
-                    error = true;
                 }
+
             }
 
             return error;
@@ -87,7 +93,8 @@ namespace PerceptronApplication
             Image work = images[step % images.Count];
             step++; // изменяем шаг выполняемой итерации
 
-            if (changeWeights(work, getD(work)))
+            d = getD(work);
+            if (changeWeights(work,d))
             {
                 not_error = 0;
             }
@@ -116,7 +123,7 @@ namespace PerceptronApplication
             {
                 stepStudy();
 
-                if (step > 1000)
+                if (step > threshold)
                 {
                     complete = false;
                     return;
@@ -138,5 +145,23 @@ namespace PerceptronApplication
         {
             return complete;
         }
+
+        public Matrix getDStep()
+        {
+            return d;
+        }
+
+        public void addThreshold()
+        {
+            threshold += 1000;
+            study();
+        }
+
+        public int getThreshold()
+        {
+            return threshold;
+        }
+
+
     }
 }

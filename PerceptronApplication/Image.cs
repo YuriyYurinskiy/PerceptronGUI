@@ -11,7 +11,7 @@ namespace PerceptronApplication
         private int type;
         private Matrix image;
 
-        public Image(int n, int c)
+        public Image(int n, double c)
         {
             this.type = 0;
             this.image = new Matrix(n + 1, 1);

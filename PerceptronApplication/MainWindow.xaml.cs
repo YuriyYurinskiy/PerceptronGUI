@@ -16,6 +16,9 @@ namespace PerceptronApplication
     {
         List<Image> images;
         Perceptron p;
+        Transport t;
+
+        int numImages, numCols;
 
         DataTable dt;
         DataTable dtWeight;
@@ -34,19 +37,79 @@ namespace PerceptronApplication
             btnStart.Click += BtnStart_Click;
             btnStudy.Click += BtnStudy_Click;
             btnStepStudy.Click += BtnStepStudy_Click;
-            btnDraw.Click += BtnDraw_Click;
+            btnNormize.Click += BtnNormize_Click;
+            btnTransport.Click += BtnTransport_Click;
 
             textC.Text = "1";
             textAttr.Text = "2";
-            textImages.Text = "3";
+            textImages.Text = "4";
+            textType.Text = "2";
 
             btnStudy.IsEnabled = false;
             btnStepStudy.IsEnabled = false;
+            btnDraw.IsEnabled = false;
         }
 
-        private void BtnDraw_Click(object sender, RoutedEventArgs e)
+        private void BtnTransport_Click(object sender, RoutedEventArgs e)
         {
-            drawGridWeight();
+            parseImages();
+
+            foreach (Image image in images)
+            {
+                foreach(double[] d in image.get().get())
+                {
+                    textLog.Text += d[0] + " ";
+                }
+
+                textLog.Text += image.getType() + "\n";
+            }
+
+            double[][] c = new double[numImages][];
+
+            for (int i = 0; i < numImages; i++)
+            {
+                c[i] = new double[numCols + 1];
+                for (int j = 0; j < numCols + 1; j++)
+                {
+                    c[i][j] = images[i].get().get()[j][0];
+                }
+            }
+
+            textLog.Text += "Проверка \n";
+
+            foreach (double[] dd in c)
+            {
+                foreach (double d in dd)
+                {
+                    textLog.Text += d + " ";
+                }
+
+                textLog.Text += "\n";
+            }
+
+            t = new Transport(c, numImages, numCols + 1);
+            t.Init();
+
+            c = t.getRes();
+
+            foreach (double[] dd in c)
+            {
+                foreach (double d in dd)
+                {
+                    textLog.Text += d + " ";
+                }
+
+                textLog.Text += "\n";
+            }
+
+            btnTransport.IsEnabled = false;
+        }
+
+        private void BtnNormize_Click(object sender, RoutedEventArgs e)
+        {
+            p.getWeights().Normize();
+            buildGridWeight();
+            drawCoord();
         }
 
         private void BtnStepStudy_Click(object sender, RoutedEventArgs e)
@@ -63,30 +126,41 @@ namespace PerceptronApplication
                 textLog.Text += "\nВыполнена " + p.getStep() + " итерация";
             }
 
+            textLog.Text += "\n" + p.getDStep().ToString();
             buildGridWeight();
+            drawCoord();
         }
 
         private void BtnStudy_Click(object sender, RoutedEventArgs e)
         {
+            if (p.getThreshold() < p.getStep())
+            {
+                p.addThreshold();
+            }
             p.study();
             if (p.getComplete())
             {
                 textLog.Text += "\nОбучение завершилось успешно на " + p.getStep() + " итерации";
+
+                btnStudy.IsEnabled = false;
+                btnStepStudy.IsEnabled = false;
             }
             else
             {
                 textLog.Text += "\nСпустя " + p.getStep() + " итераций персепртрон не обучился";
+
+
+                btnStudy.IsEnabled = true;
+                btnStepStudy.IsEnabled = true;
             }
 
-            btnStudy.IsEnabled = false;
-            btnStepStudy.IsEnabled = false;
-
             buildGridWeight();
+            drawCoord();
         }
 
         public void CreatePerceptron()
         {
-            p = new Perceptron(images, 3);
+            p = new Perceptron(images, Int32.Parse(textType.Text));
 
             textLog.Text = "Начинаем обучение персептрона";
 
@@ -100,45 +174,46 @@ namespace PerceptronApplication
         {
             parseImages();
             CreatePerceptron();
+            drawCoord();
         }
 
 
 
         private void TextC_TextChanged(object sender, TextChangedEventArgs e)
         {
-            ChangeValue();
-        }
 
+            ChangeValue(false);
+        }
         private void TextImages_TextChanged(object sender, TextChangedEventArgs e)
         {
-            ChangeValue();
+            ChangeValue(true);
         }
-
         private void TextAttr_TextChanged(object sender, TextChangedEventArgs e)
         {
-            ChangeValue();
+            ChangeValue(true);
         }
 
         //Изменение значений обработка
-        private void ChangeValue()
+        private void ChangeValue(bool rebuilt)
         {
-            int numImages, numCols, c;
+            double c;
             if (Int32.TryParse(textImages.Text, out numImages) &&
                 Int32.TryParse(textAttr.Text, out numCols) &&
-                Int32.TryParse(textC.Text, out c))
+                Double.TryParse(textC.Text, out c))
             {
-                fillImages(numImages, numCols, c);
+                fillImages(numImages, numCols, c, rebuilt);
             }
         }
 
-        private void fillImages(int numImages, int numCols, int c)
+        private void fillImages(int numImages, int numCols, double c, bool rebuilt)
         {
             images.Clear();
             for (int i = 0; i < numImages; i++)
             {
                 images.Add(new Image(numCols, c));
             }
-            buildGridImages(numCols);
+            if (rebuilt)
+                buildGridImages(numCols);
         }
 
         private void buildGridImages(int numCols)
@@ -148,7 +223,7 @@ namespace PerceptronApplication
                 dt.Columns.Clear();
                 for (int i = 1; i <= numCols; i++)
                 {
-                    dt.Columns.Add("Column " + i.ToString());
+                    dt.Columns.Add("#" + i.ToString());
                 }
                 dt.Columns.Add("Type");
 
@@ -159,7 +234,7 @@ namespace PerceptronApplication
                     var row = dt.NewRow();
                     for (int i = 1; i <= numCols; i++)
                     {
-                        row["Column " + i.ToString()] = image.get(i - 1);
+                        row["#" + i.ToString()] = image.get(i - 1);
                     }
                     row["Type"] = image.getType();
 
@@ -173,10 +248,11 @@ namespace PerceptronApplication
 
         private void parseImages()
         {
-            int numImages, numCols, c;
+            int numImages, numCols;
+            double c;
             if (Int32.TryParse(textImages.Text, out numImages) &&
                 Int32.TryParse(textAttr.Text, out numCols) &&
-                Int32.TryParse(textC.Text, out c))
+                Double.TryParse(textC.Text, out c))
             {
 
                 for (int i = 0; i < numImages; i++)
@@ -208,7 +284,7 @@ namespace PerceptronApplication
                     var row = dtWeight.NewRow();
                     for (int j = 0; j < weights.LenghtElement(); j++)
                     {
-                        row["" + j] = weights.get(i,j);
+                        row[j] = weights.get(i,j);
                     }
 
                     dtWeight.Rows.Add(row);
@@ -219,25 +295,21 @@ namespace PerceptronApplication
             }
         }
 
-        private void plot()
+        private void drawCoord()
         {
-            canvas.Children.Clear();
-
-            Draw.drawCoord(canvas);
-            Draw.drawStetOnCoord(canvas);
-        }
-
-        private void drawGridWeight()
-        {
-            plot();
-
             if (Int32.Parse(textAttr.Text) == 2)
             {
+                canvas.Children.Clear();
 
+                Draw.drawCoord(canvas);
+                Draw.drawStetOnCoord(canvas);
+                Draw.drawNumber(canvas, p.getStep());
+                Draw.drawPoints(canvas, images);
+                Draw.drawWeights(canvas, p.getWeights());
             }
             else
             {
-                throw new Exception("Не возможно построить");
+                //throw new Exception("Не возможно построить");
             }
         }
     }
